@@ -1,5 +1,6 @@
 package hu.bme.ait.blackjack
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,18 +12,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import hu.bme.ait.blackjack.ui.navigation.StartScreenRoute
+import hu.bme.ait.blackjack.ui.screen.gamescreen.GameScreen
+import hu.bme.ait.blackjack.ui.screen.startscreen.StartScreen
 import hu.bme.ait.blackjack.ui.theme.BlackJackTheme
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                Scaffold{
+                    NavGraph(
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -31,17 +41,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun NavGraph(modifier: Modifier) {
+    val backStack = rememberNavBackStack(StartScreenRoute)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BlackJackTheme {
-        Greeting("Android")
-    }
+    NavDisplay(
+        modifier = modifier,
+        backStack = backStack,
+        onBack = {backStack.removeLastOrNull()},
+        entryDecorators = listOf(
+            rememberSceneSetupNavEntryDecorator(),
+            rememberSavedStateNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider  = entryProvider {
+            entry<StartScreenRoute> {
+                StartScreen()
+            }
+        }
+    )
 }
