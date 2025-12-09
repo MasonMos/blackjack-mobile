@@ -38,7 +38,8 @@ val ButtonRed = Color(0xFF8C1818)
 
 @Composable
 fun StartScreen(
-    onStartClicked: () -> Unit = {} // Callback for when the button is clicked
+    onStartClicked: () -> Unit = {},
+    onStatClicked: () -> Unit = {}
 ) {
     // A radial gradient gives the background the appearance of a lit table
     val backgroundBrush = Brush.radialGradient(
@@ -96,6 +97,33 @@ fun StartScreen(
             ) {
                 Text(
                     text = "START GAME",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.5.sp
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                onClick = onStatClicked,
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(60.dp),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ButtonRed,
+                    contentColor = GoldAccent
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 4.dp
+                )
+            ) {
+                Text(
+                    text = "VIEW STATS",
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
