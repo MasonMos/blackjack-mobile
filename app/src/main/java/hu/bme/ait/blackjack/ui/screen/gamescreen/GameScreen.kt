@@ -4,19 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +44,7 @@ fun GameScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Dealer",
+                    text = stringResource(R.string.dealer),
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -57,7 +55,7 @@ fun GameScreen(
                 )
                 if (gameViewModel.isGameOver) {
                     Text(
-                        text = "Score: ${gameViewModel.calculatePoints(gameViewModel.dealerHand)}",
+                        text = stringResource(id = R.string.score, gameViewModel.calculatePoints(gameViewModel.dealerHand)),
                         color = Color.White
                     )
                 }
@@ -65,7 +63,7 @@ fun GameScreen(
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Balance: $${gameViewModel.currentBalance}",
+                    text = stringResource(id = R.string.balance, gameViewModel.currentBalance),
                     color = Color.Yellow,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
@@ -79,7 +77,7 @@ fun GameScreen(
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Player (Score: ${gameViewModel.calculatePoints(gameViewModel.playerHand)})",
+                    text = stringResource(id = R.string.player_score, gameViewModel.calculatePoints(gameViewModel.playerHand)),
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -132,7 +130,7 @@ fun HandView(cards: List<GameViewModel.Card>, isHiddenCard: Boolean) {
 fun ChipButton(value: Int, Image: Int, onClick: () -> Unit) {
     Image(
         painter = painterResource(id = Image),
-        contentDescription = "$$value Chip",
+        contentDescription = stringResource(id = R.string.chip_content_description, value),
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .size(55.dp) // Make the chips slightly larger
@@ -152,7 +150,7 @@ fun GameActionButtons(gameViewModel: GameViewModel) {
                 onClick = { gameViewModel.hit() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
             ) {
-                Text("HIT")
+                Text(stringResource(R.string.hit))
             }
 
             Button(
@@ -167,14 +165,14 @@ fun GameActionButtons(gameViewModel: GameViewModel) {
                 onClick = { gameViewModel.stay() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
-                Text("STAND")
+                Text(stringResource(R.string.stand))
             }
         } else {
             Button(
                 onClick = { gameViewModel.startNewGame() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF35654d))
             ) {
-                Text("NEW ROUND")
+                Text(stringResource(R.string.new_round))
             }
         }
     }
@@ -186,7 +184,7 @@ fun GameActionButtons(gameViewModel: GameViewModel) {
 fun GamePhaseInfo(gameViewModel: GameViewModel) {
     Spacer(modifier = Modifier.height(10.dp))
     Text(
-        text = "Current Bid: $${gameViewModel.currentBid}",
+        text = stringResource(id = R.string.current_bid, gameViewModel.currentBid),
         color = Color.White,
         fontSize = 16.sp
     )
@@ -195,7 +193,7 @@ fun GamePhaseInfo(gameViewModel: GameViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = gameViewModel.gameResultMsg,
-            color = if (gameViewModel.gameResultMsg.contains("Win")) Color.Green else Color.Red,
+            color = if (gameViewModel.gameResultMsg.contains(stringResource(R.string.you_win))) Color.Green else Color.Red,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
@@ -208,7 +206,7 @@ fun BiddingControls(gameViewModel: GameViewModel) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "BET: $${gameViewModel.bidAmountBuffer}",
+            text = stringResource(id = R.string.bet_amount, gameViewModel.bidAmountBuffer),
             color = Color.White,
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold
@@ -233,7 +231,7 @@ fun BiddingControls(gameViewModel: GameViewModel) {
                 enabled = gameViewModel.bidAmountBuffer > 0,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
             ) {
-                Text("DEAL")
+                Text(stringResource(R.string.deal))
             }
             Spacer(modifier = Modifier.width(15.dp))
             Button(
@@ -241,7 +239,7 @@ fun BiddingControls(gameViewModel: GameViewModel) {
                 enabled = gameViewModel.bidAmountBuffer > 0,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
             ) {
-                Text("CLEAR")
+                Text(stringResource(R.string.clear))
             }
         }
     }

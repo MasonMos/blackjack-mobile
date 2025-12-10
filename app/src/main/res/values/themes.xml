@@ -2,19 +2,4 @@
 <resources>
 
     <style name="Theme.BlackJack" parent="android:Theme.Material.Light.NoActionBar" />
-
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-
-        <!-- Set the background color of the splash screen -->
-        <!-- A dark green is often used for card tables. Change as you like. -->
-        <item name="windowSplashScreenBackground">#000000</item>
-
-        <!-- Set the icon to display on the splash screen -->
-        <!-- IMPORTANT: Create a drawable named 'ic_blackjack_logo.xml' in res/drawable -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/bjlogo</item>
-
-        <!-- Set the theme to apply after the splash screen is gone -->
-        <item name="postSplashScreenTheme">@style/Theme.BlackJack</item>
-
-    </style>
 </resources>

@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.ait.blackjack.R
@@ -34,7 +33,6 @@ class GameViewModel @Inject constructor(
     data class Card (
         val suit: Suit,
         val rank: Rank,
-        //Image Resource
         val imageRes: Int
     )
 
@@ -111,7 +109,7 @@ class GameViewModel @Inject constructor(
             if (potentialBid <= currentBalance) {
                 bidAmountBuffer = potentialBid
             } else if (potentialBid > currentBalance){
-                gameResultMsg = "Insufficient funds."
+                gameResultMsg = app.getString(R.string.insufficient_funds)
             }
             else {
                 gameResultMsg = ""
@@ -189,7 +187,7 @@ class GameViewModel @Inject constructor(
 
     fun checkBust(){
         if (calculatePoints(playerHand) > 21){
-            gameResultMsg = "You Lose"
+            gameResultMsg = app.getString(R.string.you_lose)
         }
     }
 
@@ -200,18 +198,18 @@ class GameViewModel @Inject constructor(
 
         when {
             dealerScore > 21 -> {
-                gameResultMsg = "Dealer Busts! You Win!"
+                gameResultMsg = app.getString(R.string.dealer_busts_you_win)
                 currentBalance += currentBid * 2
             }
             playerScore > dealerScore -> {
-                gameResultMsg = "You Win!"
+                gameResultMsg = app.getString(R.string.you_win)
                 currentBalance += currentBid * 2
             }
             playerScore < dealerScore -> {
-                gameResultMsg = "Dealer Wins."
+                gameResultMsg = app.getString(R.string.dealer_wins)
             }
             else -> {
-                gameResultMsg = "Push (Draw)."
+                gameResultMsg = app.getString(R.string.push_draw)
                 currentBalance += currentBid
             }
         }

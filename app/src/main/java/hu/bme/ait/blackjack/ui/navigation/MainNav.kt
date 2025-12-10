@@ -8,3 +8,6 @@ data object StartScreenRoute: NavKey
 
 data object GameScreenRoute: NavKey
 
+data object LoginScreenRoute: NavKey
+
+data object LeaderboardScreenRoute : NavKey

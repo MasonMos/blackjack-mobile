@@ -39,6 +39,7 @@ val ButtonRed = Color(0xFF8C1818)
 @Composable
 fun StartScreen(
     onStartClicked: () -> Unit = {},
+    onLoginClick: () -> Unit = {}
 ) {
     val backgroundBrush = Brush.radialGradient(
         colors = listOf(CasinoGreen, DarkerGreen),
@@ -102,6 +103,31 @@ fun StartScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                onClick = onLoginClick,
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(60.dp),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ButtonRed,
+                    contentColor = GoldAccent
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 4.dp
+                )
+            ) {
+                Text(
+                    text = "LOGIN",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.5.sp
+                    )
+                )
+            }
         }
     }
 }

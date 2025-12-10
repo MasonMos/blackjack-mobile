@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">BlackJack</string>
+
+    <!-- GameScreen.kt -->
+    <string name="dealer">Dealer</string>
+    <string name="player_score">Player (Score: %1$d)</string>
+    <string name="balance">Balance: $%1$d</string>
+    <string name="score">Score: %1$d</string>
+    <string name="chip_content_description">$%1$d Chip</string>
+    <string name="hit">HIT</string>
+    <string name="stand">STAND</string>
+    <string name="new_round">NEW ROUND</string>
+    <string name="current_bid">Current Bid: $%1$d</string>
+    <string name="bet_amount">BET: $%1$d</string>
+    <string name="deal">DEAL</string>
+    <string name="clear">CLEAR</string>
+
+
+    <!-- GameViewModel.kt -->
+    <string name="insufficient_funds">Insufficient funds.</string>
+    <string name="you_lose">You Lose</string>
+    <string name="dealer_busts_you_win">Dealer Busts! You Win!</string>
+    <string name="you_win">You Win!</string>
+    <string name="dealer_wins">Dealer Wins.</string>
+    <string name="push_draw">Push (Draw).</string>
 </resources>
