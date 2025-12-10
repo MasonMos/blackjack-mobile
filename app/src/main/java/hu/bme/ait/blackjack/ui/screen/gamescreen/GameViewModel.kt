@@ -28,7 +28,7 @@ class GameViewModel @Inject constructor(
     enum class Chip(val value: Int)
     {
         ONE(1), FIVE(5), TEN(10), TWENTY_FIVE(25),
-        FIFTY(50), ONE_HUNDRED(100), TWO_HUNDRED(200), FIVE_HUNDRED(500)
+        FIFTY(50), ONE_HUNDRED(100)
     }
 
     data class Card (
@@ -50,6 +50,12 @@ class GameViewModel @Inject constructor(
         private set
 
     var currentBid by mutableStateOf(0)
+        private set
+
+    var bidAmountBuffer by mutableStateOf(0)
+        private set
+
+    var isBiddingPhase by mutableStateOf(true)
         private set
 
     var isGameOver by mutableStateOf(false)
@@ -77,26 +83,56 @@ class GameViewModel @Inject constructor(
         deck.shuffle(Random.Default)
     }
 
-    fun startNewGame(bidAmount: Int = 50){
+    fun startNewGame(){
         if (deck.size < 10) {
             reset()
+        }
+        if (currentBalance <= 0) {
+            currentBalance = 500
         }
         playerHand.clear()
         dealerHand.clear()
         isGameOver = false
         gameResultMsg = ""
-
-        bid(bidAmount)
-
-        dealerHand.add(drawCard())
-        playerHand.add(drawCard())
-        dealerHand.add(drawCard())
-        playerHand.add(drawCard())
-
-        checkNaturalBlackjack()
+        currentBid = 0
+        bidAmountBuffer = 0
+        isBiddingPhase = true
     }
 
-    private fun drawCard(): Card {
+    fun addChipToBuffer(chipValue: Int) {
+        if (isBiddingPhase) {
+            val potentialBid = bidAmountBuffer + chipValue
+            if (potentialBid <= currentBalance) {
+                bidAmountBuffer = potentialBid
+            } else if (potentialBid > currentBalance){
+                gameResultMsg = "Insufficient funds."
+            }
+            else {
+                gameResultMsg = ""
+            }
+        }
+    }
+
+    fun resetBidBuffer() {
+        bidAmountBuffer = 0
+    }
+
+    fun dealCards() {
+        if (bidAmountBuffer > 0 && isBiddingPhase) {
+
+            bid(bidAmountBuffer)
+
+            isBiddingPhase = false
+
+            dealerHand.add(drawCard())
+            playerHand.add(drawCard())
+            dealerHand.add(drawCard())
+            playerHand.add(drawCard())
+            checkNaturalBlackjack()
+        }
+    }
+
+    fun drawCard(): Card {
         if (deck.isEmpty()) {
             reset()
         }
@@ -107,8 +143,7 @@ class GameViewModel @Inject constructor(
         if (amount <= currentBalance) {
             currentBalance -= amount
             currentBid = amount
-        } else
-        {
+        } else {
             currentBid = 0
         }
     }
@@ -131,7 +166,7 @@ class GameViewModel @Inject constructor(
         {
             dealerHand.add(drawCard())
         }
-        checkGameState()
+        checkWinner()
     }
 
     private fun checkNaturalBlackjack() {
@@ -144,36 +179,31 @@ class GameViewModel @Inject constructor(
 
     fun checkBust(){
         if (calculatePoints(playerHand) > 21){
-            println("You Lose")
+            gameResultMsg = "You Lose"
         }
     }
 
-    fun checkGameState()
-    {
-        if (dealerHand.sumOf { it.rank.value } > 21) {
-            println("You Win")
-            currentBalance += currentBid * 2
-        }
-        else if(playerHand.sumOf { it.rank.value } == 21){
-            println("You Win")
-            currentBalance += currentBid * 2
-        }
-        else if(playerHand.sumOf { it.rank.value } > dealerHand.sumOf { it.rank.value }){
-            println("You Win")
-            currentBalance += currentBid * 2
-        }
-        else if (dealerHand.sumOf { it.rank.value } == 21) {
-            println("You Lose")
-        }
-        else if (dealerHand.sumOf { it.rank.value } > playerHand.sumOf { it.rank.value }) {
-            println("You Lose")
-        }
-        else if(playerHand.sumOf { it.rank.value } > 21){
-            println("You Lose")
-        }
-        else if(playerHand.sumOf{it.rank.value} == dealerHand.sumOf{it.rank.value}){
-            println("Draw")
-            currentBalance += currentBid
+    fun checkWinner() {
+        isGameOver = true
+        val playerScore = calculatePoints(playerHand)
+        val dealerScore = calculatePoints(dealerHand)
+
+        when {
+            dealerScore > 21 -> {
+                gameResultMsg = "Dealer Busts! You Win!"
+                currentBalance += currentBid * 2
+            }
+            playerScore > dealerScore -> {
+                gameResultMsg = "You Win!"
+                currentBalance += currentBid * 2
+            }
+            playerScore < dealerScore -> {
+                gameResultMsg = "Dealer Wins."
+            }
+            else -> {
+                gameResultMsg = "Push (Draw)."
+                currentBalance += currentBid
+            }
         }
     }
 
@@ -188,7 +218,6 @@ class GameViewModel @Inject constructor(
             }
         }
 
-        // While we are over 21 and have Aces counted as 11, reduce them to 1
         while (sum > 21 && aceCount > 0) {
             sum -= 10
             aceCount--

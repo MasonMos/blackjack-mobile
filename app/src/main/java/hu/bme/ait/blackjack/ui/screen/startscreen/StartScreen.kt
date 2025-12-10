@@ -26,9 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import hu.bme.ait.blackjack.ui.theme.BlackJackTheme // Make sure you have a theme file
+import hu.bme.ait.blackjack.ui.theme.BlackJackTheme
 
-// Define some thematic colors for reuse
+
 val CasinoGreen = Color(0xFF35654d)
 val DarkerGreen = Color(0xFF1E3A2B)
 val GoldAccent = Color(0xFFFFD700)
@@ -39,9 +39,7 @@ val ButtonRed = Color(0xFF8C1818)
 @Composable
 fun StartScreen(
     onStartClicked: () -> Unit = {},
-    onStatClicked: () -> Unit = {}
 ) {
-    // A radial gradient gives the background the appearance of a lit table
     val backgroundBrush = Brush.radialGradient(
         colors = listOf(CasinoGreen, DarkerGreen),
         center = Offset(x = 100f, y = 400f),
@@ -54,14 +52,12 @@ fun StartScreen(
             .background(brush = backgroundBrush),
         contentAlignment = Alignment.Center
     ) {
-        // Subtle card suit icons in the corners for decoration
         CardSuitDecorations()
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Title Text with a shadow for a premium feel
             Text(
                 text = "Blackjack",
                 style = MaterialTheme.typography.displayLarge.copy(
@@ -106,31 +102,6 @@ fun StartScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
-
-            Button(
-                onClick = onStatClicked,
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = ButtonRed,
-                    contentColor = GoldAccent
-                ),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 4.dp
-                )
-            ) {
-                Text(
-                    text = "VIEW STATS",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp
-                    )
-                )
-            }
         }
     }
 }
