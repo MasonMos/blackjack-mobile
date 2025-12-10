@@ -6,3 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object StartScreenRoute: NavKey
 
+data object GameScreenRoute: NavKey
+

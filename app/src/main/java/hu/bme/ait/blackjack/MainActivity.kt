@@ -18,6 +18,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import hu.bme.ait.blackjack.ui.navigation.GameScreenRoute
 import hu.bme.ait.blackjack.ui.navigation.StartScreenRoute
 import hu.bme.ait.blackjack.ui.screen.gamescreen.GameScreen
 import hu.bme.ait.blackjack.ui.screen.startscreen.StartScreen
@@ -55,7 +56,12 @@ fun NavGraph(modifier: Modifier) {
         ),
         entryProvider  = entryProvider {
             entry<StartScreenRoute> {
-                StartScreen()
+                StartScreen(onStartClicked = {
+                    backStack.add(GameScreenRoute)
+                })
+            }
+            entry<GameScreenRoute> {
+                GameScreen()
             }
         }
     )

@@ -134,10 +134,6 @@ class GameViewModel {
 
 
 
-
-
-
-
     //Hit Function
 
     //Stay Function
