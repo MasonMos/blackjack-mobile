@@ -1,187 +1,174 @@
 package hu.bme.ait.blackjack.ui.screen.gamescreen
 
-
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import hu.bme.ait.blackjack.R // Ensure this matches your package
 import hu.bme.ait.blackjack.ui.screen.startscreen.CasinoGreen
 import hu.bme.ait.blackjack.ui.screen.startscreen.DarkerGreen
-import hu.bme.ait.blackjack.ui.screen.startscreen.GoldAccent
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
-
-private val ChipRed = Color(0xFFB71C1C)
-private val ChipBlue = Color(0xFF1565C0)
-private val ChipWhite = Color(0xFFFFFFFF)
-private val ChipBorder = Color(0xFF212121)
-private val ChipShadow = Color(0x66000000)
 
 @Composable
-fun GameScreen() {
-    val radialCenter = Offset(0.5f, 0.5f)
-    val radialRadius = 0.9f
+fun GameScreen(
+    gameViewModel: GameViewModel = hiltViewModel()
+) {
+    // Start game ONLY on first load
+    LaunchedEffect(key1 = Unit) {
+        gameViewModel.startNewGame()
+    }
 
-
-    val tableBrush = Brush.radialGradient(
-        colors = listOf(CasinoGreen, DarkerGreen),
-        center = radialCenter,
-        radius = radialRadius,
-        tileMode = TileMode.Clamp
-    )
-
-    val rimBrush = Brush.radialGradient(
-        colors = listOf(GoldAccent, GoldAccent.copy(alpha = 0f)),
-        center = radialCenter,
-        radius = radialRadius * 1.05f,
-        tileMode = TileMode.Clamp
+    val backgroundBrush = Brush.radialGradient(
+        colors = listOf(CasinoGreen, DarkerGreen)
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .drawBehind {
-                drawRect(tableBrush)
-                drawRect(rimBrush)
-            }
+            .background(brush = backgroundBrush)
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // --- Dealer Section ---
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Dealer",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                HandView(
+                    cards = gameViewModel.dealerHand,
+                    // Hide the first card if the game is NOT over yet
+                    isHiddenCard = !gameViewModel.isGameOver
+                )
+                // Only show dealer score when game is over to avoid cheating!
+                if (gameViewModel.isGameOver) {
+                    Text(
+                        text = "Score: ${gameViewModel.calculatePoints(gameViewModel.dealerHand)}",
+                        color = Color.White
+                    )
+                }
+            }
 
-        BetChip(
-            value = "Chippy"
-        )
+            // --- Game Info / Result ---
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Balance: $${gameViewModel.currentBalance}",
+                    color = Color.Yellow,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Current Bid: $${gameViewModel.currentBid}",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
 
-        BetChip(
-            value = "Chippy2",
-            modifier = Modifier.align(Alignment.Center)
-        )
+                Spacer(modifier = Modifier.height(10.dp))
 
-        BetChip(
-            value = "Hundo",
-            backgroundColor = ChipBlue,
-            sizeDp = 80.dp,                     // make it a little bigger for the centre
-            onClick = {
-            },
-            modifier = Modifier.align(Alignment.Center)
-        )
+                // Show Win/Loss Message
+                if (gameViewModel.isGameOver) {
+                    Text(
+                        text = gameViewModel.gameResultMsg,
+                        color = if (gameViewModel.gameResultMsg.contains("Win")) Color.Green else Color.Red,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // --- Player Section ---
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Player (Score: ${gameViewModel.calculatePoints(gameViewModel.playerHand)})",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                HandView(
+                    cards = gameViewModel.playerHand,
+                    isHiddenCard = false
+                )
+            }
+
+            // --- Controls ---
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 30.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                if (!gameViewModel.isGameOver) {
+                    Button(
+                        onClick = { gameViewModel.hit() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    ) {
+                        Text("HIT")
+                    }
+                    Button(
+                        onClick = { gameViewModel.stay() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text("STAND")
+                    }
+                } else {
+                    Button(
+                        onClick = { gameViewModel.startNewGame() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF35654d))
+                    ) {
+                        Text("PLAY AGAIN")
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun BetChip(
-    value: String,
-    sizeDp: Dp = 80.dp,
-    backgroundColor: Color = ChipRed,
-    onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-) {
-
-    var pressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.92f else 1f,
-        animationSpec = tween(durationMillis = 120)
-    )
-
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(sizeDp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                // lift the chip a little when pressed (optional)
-//                translationZ = if (pressed) 8f else 4f
-//                translationZ = if (pressed) 8 else 4
-            }
-            .shadow(elevation = 8.dp, shape = CircleShape, ambientColor = ChipShadow, spotColor = ChipShadow)
-            .clip(CircleShape)
-            .background(color = backgroundColor, shape = CircleShape)
-            .border(width = 2.dp, color = ChipBorder, shape = CircleShape)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {
-                            pressed = true
-                            // short haptic / visual feedback
-                            onClick()
-                        }
-                    )
-                } else Modifier
-            )
-            .pointerInput(Unit) {
-                // Reset the pressed flag a few ms after a tap
-                if (pressed) {
-                    awaitPointerEventScope {
-//                        delay(120)
-                        pressed = false
-                    }
-                }
-            }
+fun HandView(cards: List<GameViewModel.Card>, isHiddenCard: Boolean) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp) // Fixed height to prevent jumping
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Box {
+            cards.forEachIndexed { index, card ->
+                // If it's the dealer's first card and hidden mode is on, show back of card
+                val cardRes = if (isHiddenCard && index == 0) {
+                    // Make sure you have a back_card drawable, or use a placeholder color
+                    R.drawable.black_joker
+                } else {
+                    card.imageRes
+                }
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            // Outer radius = whole size
-            val outerRadius = size.minDimension / 2f
-
-            drawCircle(
-                color = backgroundColor.copy(alpha = 0.85f),
-                radius = outerRadius * 0.85f,
-                center = center
-            )
-
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFFFD700).copy(alpha = 0.9f),
-                        Color(0xFFFFD700).copy(alpha = 0f)
-                    ),
-                    radius = outerRadius
-                ),
-                radius = outerRadius,
-                style = Stroke(width = outerRadius * 0.06f)
-            )
+                Image(
+                    painter = painterResource(id = cardRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(120.dp)
+                        .width(80.dp)
+                        .offset(x = (30 * index).dp)
+                )
+            }
         }
-
-        Text(
-            text = value,
-            color = ChipWhite,
-            style = TextStyle(
-                fontSize = (sizeDp.value * 0.35f).sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier
-                .align(Alignment.Center)
-        )
     }
 }
-

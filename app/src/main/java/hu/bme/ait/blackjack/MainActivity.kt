@@ -18,12 +18,14 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ait.blackjack.ui.navigation.GameScreenRoute
 import hu.bme.ait.blackjack.ui.navigation.StartScreenRoute
 import hu.bme.ait.blackjack.ui.screen.gamescreen.GameScreen
 import hu.bme.ait.blackjack.ui.screen.startscreen.StartScreen
 import hu.bme.ait.blackjack.ui.theme.BlackJackTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {

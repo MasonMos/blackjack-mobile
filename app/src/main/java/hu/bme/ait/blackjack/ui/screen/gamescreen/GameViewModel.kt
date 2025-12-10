@@ -1,11 +1,21 @@
 package hu.bme.ait.blackjack.ui.screen.gamescreen
 
+import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.bme.ait.blackjack.R
+import javax.inject.Inject
 import kotlin.random.Random
 
-class GameViewModel {
+@HiltViewModel
+class GameViewModel @Inject constructor(
+    private val app: Application
+) : ViewModel() {
     enum class Suit {CLUBS, DIAMONDS, HEARTS, SPADES}
     enum class Rank(val value: Int)
     {
@@ -25,17 +35,27 @@ class GameViewModel {
         val suit: Suit,
         val rank: Rank,
         //Image Resource
-        //val imageRes: Int
+        val imageRes: Int
     )
 
     private var deck: MutableList<Card> = mutableListOf()
-    private var playerHand: MutableList<Card> = mutableListOf()
-    private var dealerHand: MutableList<Card> = mutableListOf()
+
+    var playerHand = mutableStateListOf<Card>()
+        private set
+
+    var dealerHand = mutableStateListOf<Card>()
+        private set
 
     var currentBalance by mutableStateOf(500)
         private set
 
     var currentBid by mutableStateOf(0)
+        private set
+
+    var isGameOver by mutableStateOf(false)
+        private set
+
+    var gameResultMsg by mutableStateOf("")
         private set
 
 
@@ -45,59 +65,85 @@ class GameViewModel {
 
     fun reset() {
         deck.clear()
-        playerHand.clear()
-        currentBid = 0
         for(suit in Suit.values()){
             for(rank in Rank.values()){
-                deck.add(Card(suit, rank))
+                deck.add(Card(suit, rank, getCardImageResource(rank, suit)))
             }
         }
         shuffle()
     }
+
     fun shuffle(){
         deck.shuffle(Random.Default)
     }
 
-    fun startHand(){
-        hit(dealerHand)
-        hit(dealerHand)
-        hit(playerHand)
-        hit(playerHand)
+    fun startNewGame(bidAmount: Int = 50){
+        if (deck.size < 10) {
+            reset()
+        }
+        playerHand.clear()
+        dealerHand.clear()
+        isGameOver = false
+        gameResultMsg = ""
+
+        bid(bidAmount)
+
+        dealerHand.add(drawCard())
+        playerHand.add(drawCard())
+        dealerHand.add(drawCard())
+        playerHand.add(drawCard())
+
+        checkNaturalBlackjack()
     }
 
-    fun bid(amount : Int)
-    {
-        if (amount <= currentBalance)
-        {
+    private fun drawCard(): Card {
+        if (deck.isEmpty()) {
+            reset()
+        }
+        return deck.removeAt(0)
+    }
+
+    fun bid(amount : Int) {
+        if (amount <= currentBalance) {
             currentBalance -= amount
             currentBid = amount
-        }
-        else
+        } else
         {
-            println("Insufficient funds")
+            currentBid = 0
         }
     }
 
-    fun hit(player: MutableList<Card>){
-        player.add(deck.removeAt(0))
+    fun hit(){
+        if (isGameOver) return
+        playerHand.add(drawCard())
 
-        if(player == playerHand)
-        {
+        val score = calculatePoints(playerHand)
+
+        if (score > 21) {
             checkBust()
+            isGameOver = true
         }
-
     }
 
     fun stay(){
-        while(dealerHand.sumOf { it.rank.value } < 17)
+        if (isGameOver) return
+        while(calculatePoints(dealerHand) < 17)
         {
-            hit(dealerHand)
+            dealerHand.add(drawCard())
         }
         checkGameState()
     }
 
+    private fun checkNaturalBlackjack() {
+        val playerScore = calculatePoints(playerHand)
+        if (playerScore == 21) {
+
+            stay()
+        }
+    }
+
     fun checkBust(){
-        if (playerHand.sumOf { it.rank.value } > 21){
+        if (calculatePoints(playerHand) > 21){
             println("You Lose")
         }
     }
@@ -131,14 +177,40 @@ class GameViewModel {
         }
     }
 
+    fun calculatePoints(hand: List<Card>): Int {
+        var sum = 0
+        var aceCount = 0
 
+        for (card in hand) {
+            sum += card.rank.value
+            if (card.rank == Rank.ACE) {
+                aceCount++
+            }
+        }
 
+        // While we are over 21 and have Aces counted as 11, reduce them to 1
+        while (sum > 21 && aceCount > 0) {
+            sum -= 10
+            aceCount--
+        }
 
-    //Hit Function
+        return sum
+    }
 
-    //Stay Function
-
-    //Bid Function
-
-
+    private fun getCardImageResource(rank: Rank, suit: Suit): Int {
+        val rankStr = when (rank) {
+            Rank.ACE -> "ace"
+            Rank.KING -> "king"
+            Rank.QUEEN -> "queen"
+            Rank.JACK -> "jack"
+            else -> rank.value.toString()
+        }
+        val resourceName = "${suit.name.lowercase()}_${rankStr}"
+        val resourceId = app.resources.getIdentifier(
+            resourceName,
+            "drawable",
+            app.packageName
+        )
+        return if (resourceId != 0) resourceId else R.drawable.black_joker
+    }
 }
