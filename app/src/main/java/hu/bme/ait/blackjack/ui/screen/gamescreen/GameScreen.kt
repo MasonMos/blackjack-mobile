@@ -142,6 +142,7 @@ fun ChipButton(value: Int, Image: Int, onClick: () -> Unit) {
 
 @Composable
 fun GameActionButtons(gameViewModel: GameViewModel) {
+
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = 30.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -153,6 +154,15 @@ fun GameActionButtons(gameViewModel: GameViewModel) {
             ) {
                 Text("HIT")
             }
+
+            Button(
+                onClick = { gameViewModel.doubleDown() },
+                enabled = gameViewModel.canDoubleDown,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+            ) {
+                Text("DOUBLE DOWN")
+            }
+
             Button(
                 onClick = { gameViewModel.stay() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
@@ -169,6 +179,8 @@ fun GameActionButtons(gameViewModel: GameViewModel) {
         }
     }
 }
+
+
 
 @Composable
 fun GamePhaseInfo(gameViewModel: GameViewModel) {

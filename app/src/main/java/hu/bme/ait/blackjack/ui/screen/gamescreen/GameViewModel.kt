@@ -40,6 +40,9 @@ class GameViewModel @Inject constructor(
 
     private var deck: MutableList<Card> = mutableListOf()
 
+    var canDoubleDown by mutableStateOf(false)
+        private set
+
     var playerHand = mutableStateListOf<Card>()
         private set
 
@@ -97,6 +100,9 @@ class GameViewModel @Inject constructor(
         currentBid = 0
         bidAmountBuffer = 0
         isBiddingPhase = true
+
+        canDoubleDown = false
+        isBiddingPhase = true
     }
 
     fun addChipToBuffer(chipValue: Int) {
@@ -119,15 +125,16 @@ class GameViewModel @Inject constructor(
 
     fun dealCards() {
         if (bidAmountBuffer > 0 && isBiddingPhase) {
-
             bid(bidAmountBuffer)
-
             isBiddingPhase = false
 
             dealerHand.add(drawCard())
             playerHand.add(drawCard())
             dealerHand.add(drawCard())
             playerHand.add(drawCard())
+
+            canDoubleDown = currentBalance >= currentBid
+
             checkNaturalBlackjack()
         }
     }
@@ -150,7 +157,10 @@ class GameViewModel @Inject constructor(
 
     fun hit(){
         if (isGameOver) return
+        canDoubleDown = false
         playerHand.add(drawCard())
+
+        if (isGameOver) return
 
         val score = calculatePoints(playerHand)
 
@@ -162,8 +172,8 @@ class GameViewModel @Inject constructor(
 
     fun stay(){
         if (isGameOver) return
-        while(calculatePoints(dealerHand) < 17)
-        {
+        canDoubleDown = false
+        while(calculatePoints(dealerHand) < 17) {
             dealerHand.add(drawCard())
         }
         checkWinner()
@@ -241,5 +251,19 @@ class GameViewModel @Inject constructor(
             app.packageName
         )
         return if (resourceId != 0) resourceId else R.drawable.black_joker
+    }
+
+
+    fun doubleDown() {
+        if (!canDoubleDown || isGameOver || currentBalance < currentBid) return
+
+        currentBalance -= currentBid
+
+        currentBid *= 2
+
+        playerHand.add(drawCard())
+
+        canDoubleDown = false
+        stay()
     }
 }
