@@ -8,7 +8,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import hu.bme.ait.blackjack.data.Player
 
 
 sealed interface LoginUiState {
@@ -22,6 +24,7 @@ sealed interface LoginUiState {
 class LoginViewModel : ViewModel() {
 
     var loginUiState: LoginUiState by mutableStateOf(LoginUiState.Init)
+    private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     private lateinit var auth: FirebaseAuth
 
@@ -29,12 +32,27 @@ class LoginViewModel : ViewModel() {
         auth = Firebase.auth
     }
 
-    fun registerUser(email: String, password: String) {
+    fun registerUser(email: String, password: String, username: String) {
         loginUiState = LoginUiState.Loading
         try {
             auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    loginUiState = LoginUiState.RegisterSuccess
+                .addOnSuccessListener { authResult ->
+                    val userId = authResult.user?.uid ?: ""
+                    val newPlayer = Player(
+                        uid = userId,
+                        email = email,
+                        username = username,
+                        balance = 500
+                    )
+
+                    // Save to Firestore
+                    firestore.collection("players").document(userId).set(newPlayer)
+                        .addOnSuccessListener {
+                            loginUiState = LoginUiState.RegisterSuccess
+                        }
+                        .addOnFailureListener { e ->
+                            loginUiState = LoginUiState.Error("Firestore Error: ${e.localizedMessage}")
+                        }
                 }
                 .addOnFailureListener {
                     loginUiState = LoginUiState.Error(it.localizedMessage)
@@ -42,11 +60,10 @@ class LoginViewModel : ViewModel() {
 
         } catch (e: Exception) {
             loginUiState = LoginUiState.Error(e.localizedMessage)
-            e.printStackTrace()
         }
     }
 
-    suspend fun loginUser(email: String, password: String) : AuthResult? { // waits to complete the task
+    suspend fun loginUser(email: String, password: String) : AuthResult? {
         loginUiState = LoginUiState.Loading
         try {
             val result = auth.signInWithEmailAndPassword(email,password).await()

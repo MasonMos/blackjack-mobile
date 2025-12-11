@@ -1,6 +1,7 @@
 package hu.bme.ait.blackjack.ui.screen.loginscreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +56,7 @@ val GoldAccent = Color(0xFFFFD700)
 val OffWhite = Color(0xFFF8F8F8)
 val ButtonRed = Color(0xFF8C1818)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
@@ -62,9 +67,11 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("demo@ait.hu") }
     var password by rememberSaveable { mutableStateOf("123456") }
 
+    var username by rememberSaveable { mutableStateOf("") }
+    var isRegisterMode by rememberSaveable { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
 
-    // Background Gradient
     val backgroundBrush = Brush.radialGradient(
         colors = listOf(CasinoGreen, DarkerGreen),
         center = Offset(x = 100f, y = 400f),
@@ -76,7 +83,6 @@ fun LoginScreen(
             .fillMaxSize()
             .background(brush = backgroundBrush)
     ) {
-        // Decorative background elements
         CardSuitDecorations()
 
         Column(
@@ -86,7 +92,6 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Styled Title
             Text(
                 text = "Player Entry",
                 style = MaterialTheme.typography.displayLarge.copy(
@@ -103,7 +108,6 @@ fun LoginScreen(
                 modifier = Modifier.padding(bottom = 30.dp)
             )
 
-            // Styled Email Input
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 label = { Text(text = "E-mail") },
@@ -126,7 +130,19 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Styled Password Input
+            if (isRegisterMode) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    label = { Text("Username") },
+                    value = username,
+                    onValueChange = { username = it },
+                    singleLine = true,
+                    leadingIcon = { Icon(Icons.Default.Person, null, tint = GoldAccent) },
+                    colors = textFieldColors()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 label = { Text(text = "Password") },
@@ -159,52 +175,36 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // Styled Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(0.8f),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Login Button
-                Button(
-                    onClick = {
+            Button(
+                onClick = {
+                    if (isRegisterMode) {
+                        if (username.isNotEmpty()) {
+                            viewModel.registerUser(email, password, username)
+                        }
+                    } else {
                         coroutineScope.launch {
                             val result = viewModel.loginUser(email, password)
                             if (result?.user != null) {
                                 onLoginSuccess()
                             }
                         }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                        .padding(end = 8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonRed,
-                        contentColor = GoldAccent
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
-                ) {
-                    Text(text = "LOGIN", fontWeight = FontWeight.Bold)
-                }
-
-                // Register Button
-                Button(
-                    onClick = {
-                        viewModel.registerUser(email, password)
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                        .padding(start = 8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonRed,
-                        contentColor = GoldAccent
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
-                ) {
-                    Text(text = "REGISTER", fontWeight = FontWeight.Bold)
-                }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(0.8f).height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = ButtonRed, contentColor = GoldAccent),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+            ) {
+                Text(text = if (isRegisterMode) "REGISTER" else "LOGIN", fontWeight = FontWeight.Bold)
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mode Switcher (Text Button)
+            Text(
+                text = if (isRegisterMode) "Already have an account? Login" else "Need an account? Register",
+                color = GoldAccent,
+                modifier = Modifier.clickable { isRegisterMode = !isRegisterMode }
+            )
         }
 
         Column(
@@ -232,7 +232,6 @@ fun LoginScreen(
     }
 }
 
-// Decoration composable reused from StartScreen
 @Composable
 private fun CardSuitDecorations() {
     val suitColor = Color.Black.copy(alpha = 0.2f)

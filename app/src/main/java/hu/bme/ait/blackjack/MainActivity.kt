@@ -20,8 +20,12 @@ import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ait.blackjack.ui.navigation.GameScreenRoute
+import hu.bme.ait.blackjack.ui.navigation.LeaderboardScreenRoute
+import hu.bme.ait.blackjack.ui.navigation.LoginScreenRoute
 import hu.bme.ait.blackjack.ui.navigation.StartScreenRoute
 import hu.bme.ait.blackjack.ui.screen.gamescreen.GameScreen
+import hu.bme.ait.blackjack.ui.screen.leaderboardscreen.LeaderboardScreen
+import hu.bme.ait.blackjack.ui.screen.loginscreen.LoginScreen
 import hu.bme.ait.blackjack.ui.screen.startscreen.StartScreen
 import hu.bme.ait.blackjack.ui.theme.BlackJackTheme
 
@@ -58,12 +62,28 @@ fun NavGraph(modifier: Modifier) {
         ),
         entryProvider  = entryProvider {
             entry<StartScreenRoute> {
-                StartScreen(onStartClicked = {
-                    backStack.add(GameScreenRoute)
-                })
+                StartScreen(
+                    onStartClicked = {
+                        backStack.add(GameScreenRoute)
+                    },
+                    onLoginClick = {
+                        backStack.add(LoginScreenRoute)
+                    },
+                    onLeaderboardClick = {
+                        backStack.add(LeaderboardScreenRoute)
+                    }
+                )
+            }
+            entry<LoginScreenRoute> {
+                LoginScreen(onLoginSuccess = ({
+                    backStack.add(StartScreenRoute)
+                }))
             }
             entry<GameScreenRoute> {
                 GameScreen()
+            }
+            entry<LeaderboardScreenRoute> {
+                LeaderboardScreen()
             }
         }
     )

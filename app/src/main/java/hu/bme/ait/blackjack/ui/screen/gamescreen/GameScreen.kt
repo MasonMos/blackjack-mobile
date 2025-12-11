@@ -133,7 +133,7 @@ fun ChipButton(value: Int, Image: Int, onClick: () -> Unit) {
         contentDescription = stringResource(id = R.string.chip_content_description, value),
         contentScale = ContentScale.Fit,
         modifier = Modifier
-            .size(55.dp) // Make the chips slightly larger
+            .size(55.dp)
             .clickable(onClick = onClick)
     )
 }

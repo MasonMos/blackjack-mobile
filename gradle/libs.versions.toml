@@ -34,6 +34,7 @@ coilCompose = "2.7.0" # downloading images...
 placeholder = "1.0.2"
 googleGmsGoogleServices = "4.4.4"
 firebaseAuth = "24.0.1"
+firebaseFirestore = "26.0.2"
 
 [libraries]
 # Core Navigation 3 libraries
@@ -79,6 +80,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}

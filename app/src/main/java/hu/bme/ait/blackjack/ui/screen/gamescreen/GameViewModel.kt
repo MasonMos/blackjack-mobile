@@ -6,8 +6,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.ait.blackjack.R
+import hu.bme.ait.blackjack.data.Player
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -24,17 +27,15 @@ class GameViewModel @Inject constructor(
         ACE(11)
     }
 
-    enum class Chip(val value: Int)
-    {
-        ONE(1), FIVE(5), TEN(10), TWENTY_FIVE(25),
-        FIFTY(50), ONE_HUNDRED(100)
-    }
-
     data class Card (
         val suit: Suit,
         val rank: Rank,
         val imageRes: Int
     )
+
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val currentUser = auth.currentUser
 
     private var deck: MutableList<Card> = mutableListOf()
 
@@ -68,6 +69,27 @@ class GameViewModel @Inject constructor(
 
     init{
         reset()
+        startDataListener()
+    }
+
+    private fun startDataListener() {
+        currentUser?.let { user ->
+            firestore.collection("players").document(user.uid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) return@addSnapshotListener
+                    if (snapshot != null && snapshot.exists()) {
+                        val player = snapshot.toObject(Player::class.java)
+                        currentBalance = player?.balance ?: 0
+                    }
+                }
+        }
+    }
+
+    private fun updateCloudBalance(newBalance: Int) {
+        currentUser?.let { user ->
+            firestore.collection("players").document(user.uid)
+                .update("balance", newBalance)
+        }
     }
 
     fun reset() {
@@ -90,6 +112,7 @@ class GameViewModel @Inject constructor(
         }
         if (currentBalance <= 0) {
             currentBalance = 500
+            updateCloudBalance(500)
         }
         playerHand.clear()
         dealerHand.clear()
@@ -148,6 +171,7 @@ class GameViewModel @Inject constructor(
         if (amount <= currentBalance) {
             currentBalance -= amount
             currentBid = amount
+            updateCloudBalance(currentBalance)
         } else {
             currentBid = 0
         }
@@ -180,7 +204,6 @@ class GameViewModel @Inject constructor(
     private fun checkNaturalBlackjack() {
         val playerScore = calculatePoints(playerHand)
         if (playerScore == 21) {
-
             stay()
         }
     }
@@ -213,6 +236,8 @@ class GameViewModel @Inject constructor(
                 currentBalance += currentBid
             }
         }
+
+        updateCloudBalance(currentBalance)
     }
 
     fun calculatePoints(hand: List<Card>): Int {
@@ -225,12 +250,10 @@ class GameViewModel @Inject constructor(
                 aceCount++
             }
         }
-
         while (sum > 21 && aceCount > 0) {
             sum -= 10
             aceCount--
         }
-
         return sum
     }
 
@@ -254,13 +277,9 @@ class GameViewModel @Inject constructor(
 
     fun doubleDown() {
         if (!canDoubleDown || isGameOver || currentBalance < currentBid) return
-
         currentBalance -= currentBid
-
         currentBid *= 2
-
         playerHand.add(drawCard())
-
         canDoubleDown = false
         stay()
     }
