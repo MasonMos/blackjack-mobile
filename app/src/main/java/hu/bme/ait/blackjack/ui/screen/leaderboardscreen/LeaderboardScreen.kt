@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +53,7 @@ fun LeaderboardScreen() {
             text = "High Rollers",
             style = MaterialTheme.typography.displayMedium,
             color = GoldAccent,
+            fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 20.dp)
         )
@@ -83,6 +85,7 @@ fun LeaderboardItem(rank: Int, player: Player) {
                 Text(
                     text = "#$rank",
                     color = GoldAccent,
+                    fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     modifier = Modifier.width(50.dp)
@@ -90,6 +93,7 @@ fun LeaderboardItem(rank: Int, player: Player) {
                 Text(
                     text = player.username,
                     color = Color.White,
+                    fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )
@@ -97,6 +101,7 @@ fun LeaderboardItem(rank: Int, player: Player) {
             Text(
                 text = "$${player.balance}",
                 color = GoldAccent,
+                fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )

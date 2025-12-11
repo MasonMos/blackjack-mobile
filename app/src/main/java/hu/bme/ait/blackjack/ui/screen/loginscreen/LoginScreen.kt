@@ -40,6 +40,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.bme.ait.blackjack.R
 import kotlinx.coroutines.launch
 
 // Color constants matching StartScreen
@@ -93,7 +95,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Player Entry",
+                text = stringResource(R.string.player_entry),
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontSize = 50.sp,
                     fontFamily = FontFamily.Serif,
@@ -110,7 +112,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.8f),
-                label = { Text(text = "E-mail") },
+                label = { Text(text = stringResource(R.string.email)) },
                 value = email,
                 onValueChange = { email = it },
                 singleLine = true,
@@ -133,19 +135,28 @@ fun LoginScreen(
             if (isRegisterMode) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(0.8f),
-                    label = { Text("Username") },
+                    label = { Text(stringResource(R.string.username)) },
                     value = username,
                     onValueChange = { username = it },
                     singleLine = true,
                     leadingIcon = { Icon(Icons.Default.Person, null, tint = GoldAccent) },
-                    colors = textFieldColors()
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldAccent,
+                        unfocusedBorderColor = OffWhite.copy(alpha = 0.7f),
+                        focusedLabelColor = GoldAccent,
+                        unfocusedLabelColor = OffWhite.copy(alpha = 0.7f),
+                        cursorColor = GoldAccent,
+                        focusedTextColor = OffWhite,
+                        unfocusedTextColor = OffWhite
+                    )
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.8f),
-                label = { Text(text = "Password") },
+                label = { Text(text = stringResource(R.string.password)) },
                 value = password,
                 onValueChange = { password = it },
                 singleLine = true,
@@ -194,14 +205,13 @@ fun LoginScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = ButtonRed, contentColor = GoldAccent),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
             ) {
-                Text(text = if (isRegisterMode) "REGISTER" else "LOGIN", fontWeight = FontWeight.Bold)
+                Text(text = if (isRegisterMode) stringResource(R.string.register) else stringResource(R.string.login), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Mode Switcher (Text Button)
             Text(
-                text = if (isRegisterMode) "Already have an account? Login" else "Need an account? Register",
+                text = if (isRegisterMode) stringResource(R.string.already_have_an_account_login) else stringResource(id = R.string.need_an_account_register),
                 color = GoldAccent,
                 modifier = Modifier.clickable { isRegisterMode = !isRegisterMode }
             )
@@ -225,8 +235,8 @@ fun LoginScreen(
                 }
                 is LoginUiState.Init -> {}
                 is LoginUiState.Loading -> CircularProgressIndicator(color = GoldAccent)
-                is LoginUiState.LoginSuccess -> Text("Login Successful", color = GoldAccent)
-                is LoginUiState.RegisterSuccess -> Text("Registration Successful", color = GoldAccent)
+                is LoginUiState.LoginSuccess -> Text(stringResource(R.string.login_successful), color = GoldAccent)
+                is LoginUiState.RegisterSuccess -> Text(stringResource(R.string.registration_successful), color = GoldAccent)
             }
         }
     }
@@ -237,9 +247,9 @@ private fun CardSuitDecorations() {
     val suitColor = Color.Black.copy(alpha = 0.2f)
     val suitSize = 50.sp
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("♠", fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.TopStart))
-        Text("♥", fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.TopEnd))
-        Text("♣", fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.BottomStart))
-        Text("♦", fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.BottomEnd))
+        Text(stringResource(R.string.spade), fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.TopStart))
+        Text(stringResource(R.string.heart), fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.TopEnd))
+        Text(stringResource(R.string.club), fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.BottomStart))
+        Text(stringResource(R.string.diamond), fontSize = suitSize, color = suitColor, modifier = Modifier.align(Alignment.BottomEnd))
     }
 }

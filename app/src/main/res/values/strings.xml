@@ -23,4 +23,22 @@
     <string name="you_win">You Win!</string>
     <string name="dealer_wins">Dealer Wins.</string>
     <string name="push_draw">Push (Draw).</string>
+
+    <!-- LoginScreen.kt -->
+    <string name="player_entry">Player Entry</string>
+    <string name="email">E-mail</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="register">REGISTER</string>
+    <string name="login">LOGIN</string>
+    <string name="already_have_an_account_login">Already have an account? Login</string>
+    <string name="need_an_account_register">Need an account? Register</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="login_successful">Login Successful</string>
+    <string name="registration_successful">Registration Successful</string>
+    <string name="spade">♠</string>
+    <string name="heart">♥</string>
+    <string name="club">♣</string>
+    <string name="diamond">♦</string>
+
 </resources>
